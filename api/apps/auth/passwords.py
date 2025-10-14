@@ -1,5 +1,6 @@
-import bcrypt
 import hashlib
+
+import bcrypt
 
 
 def hash_password(password: str, rounds: int = 12) -> str:

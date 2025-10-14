@@ -1,7 +1,6 @@
 import random
 import string
 import time
-from functools import wraps
 
 from api.apps.auth.passwords import hash_password
 
@@ -27,7 +26,3 @@ def hashing_experiment(repeat: int = 10):
 
 if __name__ == "__main__":
     hashing_experiment(repeat=10)
-
-
-
-
