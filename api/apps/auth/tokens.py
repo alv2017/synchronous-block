@@ -1,5 +1,6 @@
+from datetime import UTC, datetime, timedelta
+
 import jwt
-from datetime import datetime, timedelta, UTC
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -33,14 +34,16 @@ def create_access_token(
 
 
 async def decode_access_token(
-        session: AsyncSession,
-        token: str,
-        secret_key: str = settings.access_token.secret_key,
-        algorithm: str = settings.access_token.algorithm,
+    session: AsyncSession,
+    token: str,
+    secret_key: str = settings.access_token.secret_key,
+    algorithm: str = settings.access_token.algorithm,
 ) -> db_User:
     try:
-        payload = jwt.decode(token, secret_key, algorithms=algorithm, require=["exp", "sub"])
-    except ExpiredSignatureError as e:
+        payload = jwt.decode(
+            token, secret_key, algorithms=algorithm, require=["exp", "sub"]
+        )
+    except ExpiredSignatureError:
         raise JWTException("Token has expired")
     except InvalidTokenError as e:
         api_logger.warning(f"Invalid token error: {e}")
@@ -49,13 +52,12 @@ async def decode_access_token(
 
     async with session as s:
         user = (
-            await s.execute(
-                select(db_User).where(db_User.username == username)
-            )
-        ).scalars().first()
+            (await s.execute(select(db_User).where(db_User.username == username)))
+            .scalars()
+            .first()
+        )
 
     if not user:
         api_logger.warning(f"User not found: {username}")
         raise JWTException(f"Invalid token: {token}")
     return user
-

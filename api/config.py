@@ -1,12 +1,12 @@
 import logging
 import os
 from enum import Enum
-from fastapi.security import OAuth2PasswordBearer
 from pathlib import Path
+
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
-
 
 ROOT_DIRECTORY = Path(__file__).parent.parent
 ENV = ROOT_DIRECTORY / ".env"
@@ -65,7 +65,9 @@ class DBConfig(BaseModel):
             host=self.host or None,
             port=int(self.port) if self.port else None,
             database=self.name or None,
-            query={"prepared_statement_cache_size": str(self.prepared_statement_cache_size)}
+            query={
+                "prepared_statement_cache_size": str(self.prepared_statement_cache_size)
+            },
         )
 
 

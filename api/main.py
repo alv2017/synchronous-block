@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, status
 
 from .apps.auth.routes import router as auth_router
@@ -8,9 +9,12 @@ from .loggers import api_logger
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # noqa
     from api.db.connectors import db_engine
-    api_logger.info(f"Starting the application server: {settings.run.host}:{settings.run.port}")
+
+    api_logger.info(
+        f"Starting the application server: {settings.run.host}:{settings.run.port}"
+    )
     api_logger.info(f"Application mode: {settings.run.mode}")
     api_logger.info(f"Application DB URL: {settings.db.url}")
     api_logger.info(f"DB Engine: {db_engine}")
@@ -40,4 +44,3 @@ def health_check():
 
 app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(users_router, prefix=settings.api_prefix)
-
