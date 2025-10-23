@@ -58,7 +58,7 @@ Health endpoint: GET: `/health`
 At this stage we will keep things simple and measure the endpoints response time using server side logging
 middleware.
 
-In order to measure the response time of a single endpoint we will send 100 consecutive requests to the endpoint and caluclate the average response time.
+In order to measure the response time of a single endpoint we will send 100 consecutive requests to the endpoint and calculate the average response time.
 
 The major goal at this stage is to set-up correctly the server side logging.
 
