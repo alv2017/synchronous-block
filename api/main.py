@@ -29,7 +29,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     AccessLoggerMiddleware,
     logger=performance_logger,
-    format="%(h)s - %(r)s %(s)s: PID-%(p)s: %(L)s seconds"
+    format="%(h)s, %(r)s, %(s)s, PID-%(p)s, %(L)s"
 )
 
 
