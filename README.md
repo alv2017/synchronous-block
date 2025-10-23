@@ -82,8 +82,13 @@ at `api/loggers/performance_logger.py`.
 
 #### 5.2.2 Measuring the Response Time of the `/api/health/` Endpoint
 
+We will create our own script that sends 100 consecutive requests to the `/api/health/` endpoint. Then we will parse the performance log file and calculate the average response time.
+
 
 #### 5.2.3 Measuring the Response Time of the `/api/users/register/` Endpoint
+
+We will create our own script that sends 100 consecutive requests to the `/api/users/register/` endpoint. Then we will 
+parse the performance log file and calculate the average response time.
 
 
 
