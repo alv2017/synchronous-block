@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, status
+from asgi_logging_middleware import AccessLoggerMiddleware
+from fastapi import APIRouter, FastAPI, status
 
 from .apps.auth.routes import router as auth_router
 from .apps.users.routes import router as users_router
 from .config import settings
-from .loggers import api_logger
+from .loggers import api_logger, performance_logger
 
 
 @asynccontextmanager
@@ -25,9 +26,14 @@ async def lifespan(app: FastAPI):  # noqa
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(
+    AccessLoggerMiddleware,
+    logger=performance_logger,
+    format="%(h)s - %(r)s %(s)s: PID-%(p)s: %(L)s seconds"
+)
 
 
-@app.get("/", tags=["health"], status_code=status.HTTP_200_OK)
+@app.get("/", tags=["welcome"], status_code=status.HTTP_200_OK)
 def welcome():
     return {
         "API": "v1.0.0",
@@ -35,12 +41,16 @@ def welcome():
     }
 
 
-@app.get("/health", tags=["health"], status_code=status.HTTP_200_OK)
+main_router = APIRouter(tags=["main"])
+
+
+@main_router.get("/health/", status_code=status.HTTP_200_OK)
 def health_check():
     return {
         "status": "OK",
     }
 
 
+app.include_router(main_router, prefix=settings.api_prefix)
 app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(users_router, prefix=settings.api_prefix)
