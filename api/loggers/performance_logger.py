@@ -22,7 +22,7 @@ console_handler.setFormatter(console_formatter)
 # File Handler
 file_handler = logging.FileHandler(LOG_FILE_LOCATION, mode="w")
 file_formatter = logging.Formatter(
-    "time: %(asctime)s, %(levelname)s, %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    "%(asctime)s, %(levelname)s, %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 file_handler.setFormatter(file_formatter)
 
