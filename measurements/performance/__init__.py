@@ -1,1 +1,1 @@
-from .utils import measure_response_time
+from .utils import measure_get_response_time
