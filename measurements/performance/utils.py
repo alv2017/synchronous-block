@@ -1,4 +1,40 @@
+import string
+
 from httpx import Client
+from random import choices
+
+
+def generate_string(length: int, symbols: str):
+    """
+    Generates a random string of specified length using the provided symbols.
+
+    Args:
+        length (int): The length of the string to generate.
+        symbols (str): A string containing the symbols to use for generating the random string.
+
+    Returns:
+        str: A randomly generated string.
+    """
+    return "".join(choices(symbols, k=length))
+
+
+def generate_username(length: int | None = None):
+    min_length = 3
+    max_length = 20
+    symbols = string.ascii_letters + string.digits + "._-"
+    if not length:
+        length = choices(range(min_length, max_length + 1), k=1)[0]
+    return generate_string(length, symbols)
+
+
+def generate_password(length: int | None = None):
+    min_length = 8
+    max_length = 32
+    symbols = string.ascii_letters + string.digits + string.punctuation
+    if not length:
+        length = choices(range(min_length, max_length + 1), k=1)[0]
+    return generate_string(length, symbols)
+
 
 
 def measure_get_response_time(url: str) -> float:
