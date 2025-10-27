@@ -11,11 +11,11 @@ uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 
 ## 2. Password Hashing Function
 
-The password hashing function can be found at api/apps/auth/passwords.py
+The password hashing function can be found at `api/apps/auth/passwords.py`
 
 ## 3. Endpoints
 
-This is a standard Fast-API application hence the edpoints can be foud at the `/docs` endpoint.
+This is a standard Fast-API application hence the edpoints can be found at the `/docs` endpoint.
 
 User registration endpoint: POST: `/api/register/`
 Health endpoint: GET: `/api/health/`
@@ -23,8 +23,8 @@ Health endpoint: GET: `/api/health/`
 ## 4. Assignments
 1) Use `hash_password` function in a FastAPI user registration endpoint. [+]
 2) Implement a health-check endpoint that simply returns {"status": "OK"}.[+]
-3) Measure user registration endpoint response time. [-]
-4) Measure health-check endpoint response time. [-]
+3) Measure user registration endpoint response time. [+]
+4) Measure health-check endpoint response time. [+]
 5) Measure registration endpoint response time when registration requests are running concurrently. Execute the experiment with 10, 100, 1000 concurrent requests. [-]
 6) Measure `health` endpoint response time when running concurrently with the registration requests. [-]
 7) Analyze the results: [-]
@@ -59,7 +59,7 @@ middleware.
 
 In order to measure the response time of a single endpoint we will send 100 consecutive requests to the endpoint and calculate the average response time.
 
-The major goal at this stage is to set-up correctly the server side logging.
+The major goal at this stage is to set up correctly the server side logging.
 
 For server side logging we will be using the `asgi-logging-middleware` package, however you can use any other package of your choice, or create a logging middleware of your own. 
 
@@ -107,3 +107,10 @@ Server log results: `measurements/response_times/api_register_endpoint/api_healt
 
 1) Server side average response time for `/api/user/register/` endpoint: 222.0682 ms
 2) Client side average response time for `/api/user/register` endpoint: 223.5300 ms
+
+### 5.3. Measuring `/api/users/register/` Endpoint Response Time Under Concurrent Load
+
+Our next challenge is to measure the `/api/users/register/` endpoint response time when registration requests are running concurrently.
+
+We will use `locust` to perform the load testing. [locust](https://locust.io/) is an open source load testing tool that allows you to define user behavior with Python code, and swarm your system with millions of simultaneous users. 😊
+
