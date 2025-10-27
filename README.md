@@ -98,5 +98,13 @@ Server log results: `measurements/response_times/api_health_endpoint/api_health_
 #### 5.2.3 Measuring the Response Time of the `/api/users/register/` Endpoint
 
 We will create our own script that sends 100 consecutive requests to the `/api/users/register/` endpoint. Then we will 
-parse the performance log file and calculate the average response time.
+parse the performance log file and calculate the average response time. In our script we will also measure the response time on the client's side. This means that we will be able to compare the server side response time with the client side response time!
 
+Script location: `measurements/response_times/api_register_endpoint/response_time.py`
+
+Server log results: `measurements/response_times/api_register_endpoint/api_health_performance.log`
+
+**Results:**
+
+1) Server side average response time for `/api/user/register/` endpoint: 222.0682 ms
+2) Client side average response time for `/api/user/register` endpoint: 223.5300 ms

@@ -20,7 +20,7 @@ console_formatter = ColourizedFormatter(
 console_handler.setFormatter(console_formatter)
 
 # File Handler
-file_handler = logging.FileHandler(LOG_FILE_LOCATION, mode="w")
+file_handler = logging.FileHandler(LOG_FILE_LOCATION, mode="a")
 file_formatter = logging.Formatter(
     "%(asctime)s, %(levelname)s, %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
