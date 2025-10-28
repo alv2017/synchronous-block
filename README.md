@@ -20,7 +20,6 @@ This is a standard Fast-API application hence the edpoints can be foud at the `/
 User registration endpoint: POST: `/api/register/`
 Health endpoint: GET: `/api/health/`
 
-
 ## 4. Assignments
 1) Use `hash_password` function in a FastAPI user registration endpoint. [+]
 2) Implement a health-check endpoint that simply returns {"status": "OK"}.[+]
@@ -51,9 +50,9 @@ Health endpoint: GET: `/api/health/`
 - API health-check endpoint is implemented at `/api/health/`
 
 
-### 5.2. Measuring the Response times of the `/api/users/register/` and `/api/health/` Endpoints
+### 5.3. Measuring the Response times of the `/api/users/register/` and `/api/health/` Endpoints
 
-#### 5.2.1 Introduction
+#### 5.3.1 Introduction
 
 At this stage we will keep things simple and measure the endpoints response time using server side logging
 middleware.
@@ -65,7 +64,7 @@ The major goal at this stage is to set-up correctly the server side logging.
 For server side logging we will be using the `asgi-logging-middleware` package, however you can use any other package of your choice, or create a logging middleware of your own. 
 
 
-#### 5.2.1 Setting up the `asgi-logging-middleware`
+#### 5.3.2 Setting up the `asgi-logging-middleware`
 
 1) We need to install the `asgi-logging-middleware` package:
 
@@ -80,7 +79,7 @@ at `api/loggers/performance_logger.py`.
 `api/main.py`. The modification have been done following the FastAPI documentation on adding ASGI middleware ([Adding ASGI Middlewares](https://fastapi.tiangolo.com/advanced/middleware/#adding-asgi-middlewares))  and the documentation of[asgi-logging-middleware](https://github.com/alv2017/asgi-logging-middleware) package. 
 
 
-#### 5.2.2 Measuring the Response Time of the `/api/health/` Endpoint
+#### 5.3.3 Measuring the Response Time of the `/api/health/` Endpoint
 
 We will create our own script that sends 100 consecutive requests to the `/api/health/` endpoint. Then we will parse the performance log file and calculate the average response time.
 
@@ -95,7 +94,7 @@ Server log results: `measurements/response_times/api_health_endpoint/api_health_
 1) Server side average response time for `/api/health/` endpoint: 0.6151 ms 
 2) Client side average response time for `/api/health/` endpoint: 1.8200 ms
 
-#### 5.2.3 Measuring the Response Time of the `/api/users/register/` Endpoint
+#### 5.3.4 Measuring the Response Time of the `/api/users/register/` Endpoint
 
 We will create our own script that sends 100 consecutive requests to the `/api/users/register/` endpoint. Then we will 
 parse the performance log file and calculate the average response time. In our script we will also measure the response time on the client's side. This means that we will be able to compare the server side response time with the client side response time!
