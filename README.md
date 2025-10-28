@@ -17,8 +17,8 @@ The password hashing function can be found at api/apps/auth/passwords.py
 
 This is a standard Fast-API application hence the edpoints can be foud at the `/docs` endpoint.
 
-User registration endpoint: POST: `/register`
-Health endpoint: GET: `/health`
+User registration endpoint: POST: `/api/register/`
+Health endpoint: GET: `/api/health/`
 
 
 ## 4. Assignments
