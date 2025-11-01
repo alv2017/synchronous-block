@@ -25,22 +25,24 @@ Health endpoint: GET: `/api/health/`
 2) Implement a health-check endpoint that simply returns {"status": "OK"}.[+]
 3) Measure user registration endpoint response time. [+]
 4) Measure health-check endpoint response time. [+]
-5) Measure registration endpoint response time when registration requests are running concurrently. Execute the experiment with 10, 100, 1000 concurrent requests. [-]
+5) Measure registration endpoint response time when registration requests are running concurrently. [+]
 6) Measure `health` endpoint response time when running concurrently with the registration requests. [-]
 7) Analyze the results: [-]
     - how the event loop behaves when blocked?
     - how responsiveness is affected under load?
-    - how does the health-check endpoint behave when multiple registration requests are running concurrently? How does its response time change with concurrency?
+    - how does the health-check endpoint behave when multiple registration requests are running concurrently? 
+    - how does its response time change with concurrency?
     - how does the average response time of registration end-point change with concurrency?
-8) Measure CPU and memory usage during the experiments. [-]
 
 ## 5. Solution
 
 ### 5.1. Password Hashing Function
 
-- The password hashing function `hash_password` is located at `api/apps/auth/passwords.py`. This function is used in the user registration endpoint to hash the user's password before storing it.
+- The password hashing function `hash_password` is located at `api/apps/auth/passwords.py`. This function is used in 
+the user registration endpoint to hash the user's password before storing it.
 
-- There is also password verification function `verify_password` that is used to verify the user's password during login. It is located at the same file `api/apps/auth/passwords.py`.
+- There is also password verification function `verify_password` that is used to verify the user's password during 
+login. It is located at the same file `api/apps/auth/passwords.py`.
 
 
 ### 5.2. Endpoints
@@ -57,11 +59,13 @@ Health endpoint: GET: `/api/health/`
 At this stage we will keep things simple and measure the endpoints response time using server side logging
 middleware.
 
-In order to measure the response time of a single endpoint we will send 100 consecutive requests to the endpoint and calculate the average response time.
+In order to measure the response time of a single endpoint we will send 100 consecutive requests to the endpoint and 
+calculate the average response time.
 
 The major goal at this stage is to set up correctly the server side logging.
 
-For server side logging we will be using the `asgi-logging-middleware` package, however you can use any other package of your choice, or create a logging middleware of your own. 
+For server side logging we will be using the `asgi-logging-middleware` package, however you can use any other package 
+of your choice, or create a logging middleware of your own. 
 
 
 #### 5.3.2 Setting up the `asgi-logging-middleware`
@@ -76,14 +80,18 @@ pip install asgi-logging-middleware
 at `api/loggers/performance_logger.py`.
 
 3) We need to add the `AccessLoggerMiddleware` middleware to the Fast-API application. To do that we need to modify the 
-`api/main.py`. The modification have been done following the FastAPI documentation on adding ASGI middleware ([Adding ASGI Middlewares](https://fastapi.tiangolo.com/advanced/middleware/#adding-asgi-middlewares))  and the documentation of[asgi-logging-middleware](https://github.com/alv2017/asgi-logging-middleware) package. 
+`api/main.py`. The modification have been done following the FastAPI documentation on adding ASGI middleware 
+([Adding ASGI Middlewares](https://fastapi.tiangolo.com/advanced/middleware/#adding-asgi-middlewares))  and the documentation of[asgi-logging-middleware](https://github.com/alv2017/asgi-logging-middleware) package. 
 
 
 #### 5.3.3 Measuring the Response Time of the `/api/health/` Endpoint
 
-We will create our own script that sends 100 consecutive requests to the `/api/health/` endpoint. Then we will parse the performance log file and calculate the average response time.
+We will create our own script that sends 100 consecutive requests to the `/api/health/` endpoint. Then we will parse 
+the performance log file and calculate the average response time.
 
-Essentially in our script that sends requests to the endpoint we can also measure the response time, this time on the client's side. This means that we will be able to compare the server side response time with the client side response time!
+Essentially in our script that sends requests to the endpoint we can also measure the response time, this time on the 
+client's side. This means that we will be able to compare the server side response time with the client side response 
+time!
 
 Script location: `measurements/response_times/api_health_endpoint/response_time.py`
 
@@ -97,7 +105,9 @@ Server log results: `measurements/response_times/api_health_endpoint/api_health_
 #### 5.3.4 Measuring the Response Time of the `/api/users/register/` Endpoint
 
 We will create our own script that sends 100 consecutive requests to the `/api/users/register/` endpoint. Then we will 
-parse the performance log file and calculate the average response time. In our script we will also measure the response time on the client's side. This means that we will be able to compare the server side response time with the client side response time!
+parse the performance log file and calculate the average response time. In our script we will also measure the response 
+time on the client's side. This means that we will be able to compare the server side response time with the client side 
+response time!
 
 Script location: `measurements/response_times/api_register_endpoint/response_time.py`
 
@@ -108,9 +118,84 @@ Server log results: `measurements/response_times/api_register_endpoint/api_healt
 1) Server side average response time for `/api/user/register/` endpoint: 222.0682 ms
 2) Client side average response time for `/api/user/register` endpoint: 223.5300 ms
 
-### 5.3. Measuring `/api/users/register/` Endpoint Response Time Under Concurrent Load
+### 5.3.5 Measuring `/api/users/register/` Endpoint Response Time Under Concurrent Load
 
-Our next challenge is to measure the `/api/users/register/` endpoint response time when registration requests are running concurrently.
+#### 5.3.5.1 Introduction
 
-We will use `locust` to perform the load testing. [locust](https://locust.io/) is an open source load testing tool that allows you to define user behavior with Python code, and swarm your system with millions of simultaneous users. 😊
+Our next challenge is to measure the `/api/users/register/` endpoint response time when registration requests are 
+running concurrently. 
 
+We will use `locust` to perform the load testing. [locust](https://locust.io/) is an open source load testing tool that allows to 
+define user behavior with Python code, and swarm your system with millions of simultaneous users. 
+
+In this project everything is supposed to be executed locally. First, we need to understand how do the things
+work, and then we can think about Docker and cloud deployments.
+
+The plan for the task is the following:
+
+- Run the experiments with different number of workers: 1, 2, and 4. Do not hesitate to change the number of workers
+depending on your needs.
+- Run the experiments with 1, 5, 10, 15, and 20 concurrent users for various number of workers. Again do not hesitate
+to change those numbers whenever you find it reasonable.
+- Remember, our main goal in this exercise is to observe how the blocking function affects the performance of our 
+FastAPI application. 
+
+#### 5.3.5.2 `locust` Setup
+
+1) First of all we need to install `locust`, if you use pip:
+```bash
+pip install locust
+```
+
+2) Next we need to add a `locustfile` containing a test scenario.
+`locustfile` location for `/api/user/register` endpoint: `measurements/concurrency/api_register_endpoint/locustfile.py`
+
+3) Finally, we need to execute our test scenario. I was using `locust` UI to setup the number of concurrent users, the host,
+and the test duration time.
+
+You can start `locust` by pointing out to your `locustfile`:
+
+```bash
+locust -f <your-locust-scenario-location> 
+```
+
+I our particular this command becomes as follows:
+
+```bash
+locust -f measurements/concurrency/api_register_endpoint/locustfile.py
+```
+
+As the `locust` starts the UI can be accessed via a web browser at `http://localhost/8089`.
+In the `locust` UI you can define the test settings: number of concurrent users, number of new users per second,
+an API host, and a test duration time. As soon as you are ready click the ENTER button.
+
+#### 5.3.5.3 Results 
+
+File location: `measurements/response_times/api_register_endpoint/results.csv`
+
+We start with 1 worker and 1 user (no concurrency).
+- The average response time is around 243 ms. 
+
+Increasing the number of users to 5 revealed the impact of the blocking password hashing function.
+- The average response time rose to 936 ms, demonstrating that concurrent requests begin to queue behind 
+the blocking operation.
+
+As we kept increasing the number of users, the `registration` endpoint performance degraded. 
+- When we reached 20 users with 1 worker the average response time was around 4.2 seconds, and we started observing 
+failing requests. 
+- The requests failed due to database locking. 
+- In the current setup we are using SQLite database, and it doesn't handle concurrent writes very well, 
+especially when multiple requests attempt to write to the database simultaneously.
+
+Increasing the number of workers improved performance: 
+- With 4 workers and 5 users, the average response time dropped to 267 ms.
+- However, keeping the number of workers fixed to 4, and increasing the number of users resulted in performance
+degradation, though it was not as severe as with 1 worker.
+
+
+**Conclusions**
+- The system performs well when the number of concurrent users is approximately equal to the number of workers.
+- When the number of users exceeds the number of workers, the blocking password hashing function causes requests 
+to queue, leading to higher latency and, in extreme cases, database lock errors.
+
+  
