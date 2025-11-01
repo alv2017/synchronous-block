@@ -26,7 +26,7 @@ Health endpoint: GET: `/api/health/`
 3) Measure user registration endpoint response time. [+]
 4) Measure health-check endpoint response time. [+]
 5) Measure registration endpoint response time when registration requests are running concurrently. [+]
-6) Measure `health` endpoint response time when running concurrently with the registration requests. [-]
+6) Measure `health` endpoint response time when running concurrently with the registration requests. [+]
 7) Analyze the results: [-]
     - how the event loop behaves when blocked?
     - how responsiveness is affected under load?
@@ -172,7 +172,7 @@ an API host, and a test duration time. As soon as you are ready click the ENTER 
 
 #### 5.3.5.3 Results 
 
-File location: `measurements/response_times/api_register_endpoint/results.csv`
+Results file location: `measurements/response_times/api_register_endpoint/results.csv`
 
 We start with 1 worker and 1 user (no concurrency).
 - The average response time is around 243 ms. 
@@ -198,4 +198,68 @@ degradation, though it was not as severe as with 1 worker.
 - When the number of users exceeds the number of workers, the blocking password hashing function causes requests 
 to queue, leading to higher latency and, in extreme cases, database lock errors.
 
-  
+### 5.3.6 Measuring `/api/health/` Endpoint Response Time Under Concurrent Load
+
+#### 5.3.6.1 Introduction
+
+In this task we will measure the `health` endpoint response time when running concurrently with the registration requests.
+We will use `locust` to perform the load testing.
+
+The plan for the experiment is the following:
+
+We will create a test scenario in locust that will simulate user access to both the `/api/users/register/` and 
+`/api/health/` endpoints. The frequency of requests to the `/api/users/register/` endpoint will be approximately 5 times 
+higher than that to the `/api/health/` endpoint. By doing this we want to simulate a system performing blocking
+operations of high CPU intensity. Our goal is to observe how the blocking operations affect the responsiveness of the 
+`/api/health/` endpoint, which is expected to be lightweight and fast.
+
+Our plan is pretty much the same as for the previous task:
+
+- Run the experiments with different number of workers: 1, 2, and 4. Do not hesitate to change the number of workers
+depending on your needs.
+- Run the experiments with 1, 5, 10, 15, and 20 concurrent users for various number of workers. Do not hesitate
+to change those numbers whenever you find it reasonable.
+- Our main goal is to observe how the blocking function affects the performance of our FastAPI application. 
+In this particular case we want to observe how the application server handles lightweight requests
+when it is busy processing blocking requests.
+
+#### 5.3.6.2 `locust` Setup
+
+The `locustfile` for the task scenario is located in `measurements/concurrency/api_health_endpoint/locustfile.py` 
+
+#### 5.3.6.3 Results
+
+Results file location: `measurements/response_times/api_health_endpoint/results.csv`
+
+We start with 1 worker and 1 user (no concurrency).
+- The average response time for the `/api/health/` endpoint is around 6.25 ms.
+
+Increase of the number of users to 5 reveals the impact of the blocking password hashing function.
+- The average response time rose to 338.25 ms, demonstrating that the lightweight requests are significantly affected
+by the blocked event loop.
+
+As we kept increasing the number of users, the `health` endpoint performance degraded further.
+- When we reached 20 users with 1 worker the average response time of the `/api/health` endpoint reached 2.34 seconds.
+
+Increasing the number of workers improved performance on the `/api/health/` endpoint:
+- With 4 workers and 5 users, the average response time was 13.45 ms.
+- With 4 workers and 10 users, the average response time was 109.74 ms.
+- With 4 workers and 15 users, the average response time rose to 158.27 ms.
+- With 4 workers and 20 users, the average response time rose to 360.45 ms. 
+
+At the same time as we kept increasing the number of users, the average response time of the `/api/users/register/` 
+endpoint also increased, but not as severely as with one worker.
+
+**Conclusions**
+
+- Blocking CPU-bound operations stall the async event loop. A synchronous bcrypt hash prevents other coroutines 
+from executing until the CPU work completes. This results in blocking of other concurrently called endpoints,
+even the lightweight ones.
+- The effect of the blocking behavior is especially apparent when the number of workers is equal to 1. The average 
+response time of the `/api/health/` endpoint increases dramatically as the number of users increases. This happens
+because the event loop is blocked by the CPU-intensive password hashing operations, causing lightweight requests 
+to queue up and wait.
+- As we increase the number of workers, the performance of the `/api/health/` endpoint improves.
+- Parallel workers isolate blocking operations in separate processes, so lightweight requests can still be served 
+promptly. The latency still increases with concurrency but remains an order of magnitude lower than the 
+single-worker case.
