@@ -33,6 +33,7 @@ Health endpoint: GET: `/api/health/`
     - how does the health-check endpoint behave when multiple registration requests are running concurrently? 
     - how does its response time change with concurrency?
     - how does the average response time of registration end-point change with concurrency?
+8) Measure CPU and memory usage during the experiments. [-]
 
 ## 5. Solution
 
@@ -191,7 +192,6 @@ Increasing the number of workers improved performance:
 - With 4 workers and 5 users, the average response time dropped to 267 ms.
 - However, keeping the number of workers fixed to 4, and increasing the number of users resulted in performance
 degradation, though it was not as severe as with 1 worker.
-
 
 **Conclusions**
 - The system performs well when the number of concurrent users is approximately equal to the number of workers.
