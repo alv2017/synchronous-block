@@ -36,7 +36,6 @@ def generate_password(length: int | None = None):
     return generate_string(length, symbols)
 
 
-
 def measure_get_response_time(url: str) -> float:
     """
     Measures the response time of a given API endpoint.

@@ -3,13 +3,13 @@ from locust import HttpUser, task, between
 
 
 class TestAPIHealth(HttpUser):
-    wait_time = between(0, 0.2)
+    wait_time = between(0.5, 1)
 
     @task(1)  # task weight of 1
     def api_health(self):
         self.client.get("/api/health/", name="Health-Endpoint")
 
-    @task(10)  # task weight of 10
+    @task(5)  # task weight of 5
     def user_registration(self):
         id = randint(1, 1000000000)
         self.client.post(
