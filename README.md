@@ -263,3 +263,42 @@ to queue up and wait.
 - Parallel workers isolate blocking operations in separate processes, so lightweight requests can still be served 
 promptly. The latency still increases with concurrency but remains an order of magnitude lower than the 
 single-worker case.
+
+### 5.6.7 Results Summary
+
+1) How the event loop behaves when blocked?
+
+When the event loop is blocked by a synchronous, CPU-bound operation (like password hashing, or file compression),
+it can't switch to other tasks. As a result, all pending coroutines are paused until the blocking operation
+completes. This leads to increased latency for all requests, even lightweight ones.
+
+
+2) How responsiveness is affected under load?
+
+Under load, especially when the number of concurrent requests exceeds the number of workers, responsiveness degrades 
+significantly. Requests queue up behind the blocking operation, leading to higher latency and, in extreme cases, 
+database lock errors.
+
+
+3) How does the health-check endpoint behave when multiple registration requests are running concurrently? How does
+its response time change with concurrency?
+
+The health-check endpoint's response time increases dramatically as the number of concurrent registration requests
+grows. This is happening because the event-loop is blocked by the CPU-intensive password hashing operations, causing
+all the incoming requests (including lightweight ones) to queue up and wait.
+
+
+4) How does the average response time of registration end-point change with concurrency?
+
+The average response time of the registration endpoint increases significantly with higher concurrency. Since the 
+registration process is resource-intensive (it involves passwords hashing and database writes), concurrent requests 
+compete for CPU and I/O resources, overloading the system and causing response times to rise rapidly.
+
+
+### 5.6.8 Measuring CPU and Memory Usage During the Experiments
+
+This project does not include CPU and memory usage measurements during the experiments. The main reason for that
+is the fact that we are running everything locally on a development machine, hence the CPU and memory usage
+measurements are not very representative. However, during the next stage of the project we will work with the 
+dockerized apps, in this case we will have a full control over the environment where the apps are running, and at
+this stage we will perform CPU and memory usage measurements.
