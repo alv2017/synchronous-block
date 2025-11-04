@@ -172,7 +172,7 @@ an API host, and a test duration time. As soon as you are ready click the ENTER 
 
 #### 5.3.5.3 Results 
 
-Results file location: `measurements/response_times/api_register_endpoint/results.csv`
+Results file location: `measurements/concurrency/api_register_endpoint/results.csv`
 
 We start with 1 worker and 1 user (no concurrency).
 - The average response time is around 243 ms. 
@@ -229,7 +229,7 @@ The `locustfile` for the task scenario is located in `measurements/concurrency/a
 
 #### 5.3.6.3 Results
 
-Results file location: `measurements/response_times/api_health_endpoint/results.csv`
+Results file location: `measurements/concurrency/api_health_endpoint/results.csv`
 
 We start with 1 worker and 1 user (no concurrency).
 - The average response time for the `/api/health/` endpoint is around 6.25 ms.
