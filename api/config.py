@@ -52,9 +52,9 @@ class DBConfig(BaseModel):
     password: str = ""
     echo: bool = False
     echo_pool: bool = False
-    pool_size: int = 100
+    pool_size: int = 10
     prepared_statement_cache_size: int = 128
-    max_overflow: int = 50
+    max_overflow: int = 5
 
     @property
     def url(self) -> URL:
